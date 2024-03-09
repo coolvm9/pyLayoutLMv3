@@ -1,16 +1,25 @@
-# This is a sample Python script.
+import logging
+from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+from services.service_one import router as router_one
+from services.service_two import router as router_two
+import uvicorn
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI()
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+
+# Include routers from your services
+app.include_router(router_one)
+app.include_router(router_two)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+@app.get("/", include_in_schema=False)
+async def root():
+    logger.info('Redirecting to /docs')
+    return RedirectResponse(url='/docs')
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    logger.info('Starting application')
+    uvicorn.run("main:app", host="0.0.0.0", port=5010, reload=True)
